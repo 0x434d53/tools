@@ -1,0 +1,42 @@
+package main
+
+import (
+	"fmt"
+	"github.com/0x434D53/tools/git/lib"
+	"os"
+	"path"
+)
+
+
+func Rename(gi []lib.GitInfos) {
+	for _, info := range gi {
+		oldDir := path.Base(info.Path)
+		newDir := info.Username + "_" + info.Projectname
+
+		if oldDir != newDir {
+			basePath := path.Dir(info.Path)
+			newPath := path.Join(basePath, newDir)
+
+			err := os.Rename(info.Path, newPath)
+
+			if err != nil {
+				fmt.Println(err)
+			}
+		}
+
+	}
+}
+
+func main() {
+	if len(os.Args) != 2 {
+		fmt.Println("Please give a root path as an argument")
+		return
+	}
+
+	gitInfos, err := lib.CollectGitRepositories(os.Args[1])
+
+	if err != nil {
+		panic(err)
+	}
+	Rename(gitInfos)
+}
