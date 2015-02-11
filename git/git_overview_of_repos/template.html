@@ -19,17 +19,23 @@
     <div class="container-fluid">
       <!-- Example row of columns -->
       <div class="row">
-        <div class="col-sm-3 col-md-2">
+        <div class="col-sm-3 col-md-2 sidebar">
             <ul class="nav nav-pills nav-stacked">
-                <li class="active"><a href="#">Test</a></li>
-                <li><a href="#">Test 1</a></li>
+                {{ range .Project }}
+                <li><a href="#">{{.Projectname}}</a></li>
+                {{ end }}
             </ul>
         </div>
         <div class="col-sm-9 col-md-10">
+            <div class="row">
+                {{.CurrentTitle}}
+           </div>
+            <div class="row">
+                {{.CurrentReadme}}
+            </div>
         </div>
     </div>
 </div> <!-- /container -->
-
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
     <script src="./js/bootstrap.min.js"></script>
 </body>

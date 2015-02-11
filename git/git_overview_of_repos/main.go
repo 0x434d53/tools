@@ -105,33 +105,10 @@ func ServeWebSite(servePath string) {
 	log.Panic(http.ListenAndServe(":8081", http.FileServer(http.Dir(servePath))))
 }
 
-func CreateTempDir() (string, error) {
-	tempDir := os.TempDir()
-
-	gitDir := "gitDir" // TODO: add a timestamp
-
-	newDir := path.Join(tempDir, gitDir)
-
-	err := os.Mkdir(newDir, 0755)
-
-	if err != nil {
-		return "", err
-	}
-
-	return newDir, nil
-}
-
 func main() {
 	if len(os.Args) != 2 {
 		fmt.Println("Please give a root path as an argument")
 		return
-	}
-
-	servePath, err := CreateTempDir()
-
-	if err != nil {
-		fmt.Println("Unable to create temporary directory")
-		panic(err)
 	}
 
 	gitInfos, err := lib.CollectGitRepositories(os.Args[1])
@@ -145,11 +122,9 @@ func main() {
 		panic(err)
 	}
 
-	fmt.Println(repos)
-
-	if err != nil {
-		panic(err)
+	for _, r := range repos {
+		fmt.Println(r.Projectname)
 	}
 
-	ServeWebSite(servePath)
+	//	ServeWebSite(servePath)
 }
