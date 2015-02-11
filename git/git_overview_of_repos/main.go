@@ -2,14 +2,16 @@ package main
 
 import (
 	"fmt"
-	"github.com/0x434D53/tools/git/lib"
-	"github.com/russross/blackfriday"
+	"html/template"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
 	"path"
 	"time"
+
+	"github.com/0x434D53/tools/git/lib"
+	"github.com/russross/blackfriday"
 )
 
 type GitRepo struct {
@@ -24,17 +26,16 @@ type ProjectAndId struct {
 	Projectname string
 }
 
-type templateData struct {
-	Project            []ProjectAndId
-	CurrentReadme      []byte
+var projects []ProjectAndId
+
+type TemplateData struct {
+	Projects           []ProjectAndId
+	CurrentReadme      template.HTML
 	CurrentProjectname string
 	CurrentLastUpdate  string
 	CurrentUser        string
 	CurrentURL         string
 }
-
-var gitRepos []GitRepo
-var servePath string
 
 func CollectRenderingInformation(gi []lib.GitInfos) ([]GitRepo, error) {
 	gitRepos := make([]GitRepo, 0)
@@ -101,8 +102,31 @@ func findReadme(p string) (string, error) {
 	return "", fmt.Errorf("No Readme found")
 }
 
-func ServeWebSite(servePath string) {
-	log.Panic(http.ListenAndServe(":8081", http.FileServer(http.Dir(servePath))))
+var repos []GitRepo
+var tmpl *template.Template
+
+func Serve() {
+	var err error
+	tmpl, err = template.ParseFiles("template.html")
+
+	if err != nil {
+		panic(err)
+	}
+	http.HandleFunc("/", MainHandler)
+	log.Fatal(http.ListenAndServe(":8081", nil))
+}
+
+func MainHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Println(r)
+	data := TemplateData{
+		Projects:           projects,
+		CurrentProjectname: repos[0].Projectname,
+		CurrentReadme:      template.HTML(repos[0].ReadMeRendered),
+	}
+	err := tmpl.Execute(w, data)
+	if err != nil {
+		panic(err)
+	}
 }
 
 func main() {
@@ -116,7 +140,17 @@ func main() {
 		panic(err)
 	}
 
-	repos, err := CollectRenderingInformation(gitInfos)
+	repos, err = CollectRenderingInformation(gitInfos)
+
+	projects = []ProjectAndId{}
+
+	for i, gi := range repos {
+		p := ProjectAndId{}
+		p.Projectname = gi.Projectname
+		p.Id = i
+
+		projects = append(projects, p)
+	}
 
 	if err != nil {
 		panic(err)
@@ -126,5 +160,5 @@ func main() {
 		fmt.Println(r.Projectname)
 	}
 
-	//	ServeWebSite(servePath)
+	Serve()
 }
