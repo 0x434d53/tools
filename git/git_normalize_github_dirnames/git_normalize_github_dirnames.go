@@ -27,7 +27,6 @@ func Rename(gi []lib.GitInfos) {
 		oldDir := path.Base(info.Path)
 		newDir := info.Username + "_" + info.Projectname
 		newDir = strings.TrimSuffix(newDir, ".git")
-		fmt.Println(oldDir, newDir)
 
 		if oldDir != newDir {
 
