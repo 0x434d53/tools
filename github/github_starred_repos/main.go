@@ -12,9 +12,9 @@ import (
 type GithubURLType int
 
 const (
-	SSH GithubURLType = iota
-	GIT
-	HTTPS
+	ssh GithubURLType = iota
+	git
+	https
 )
 
 func main() {
@@ -29,7 +29,7 @@ func main() {
 
 	client := github.NewClient(tc)
 
-	repos, err := GetStarredReposForUser(client, HTTPS)
+	repos, err := getStarredReposForUser(client, https)
 
 	if err != nil {
 		log.Fatal(err)
@@ -40,7 +40,7 @@ func main() {
 	}
 }
 
-func GetStarredReposForUserPage(client *github.Client, urlType GithubURLType, page int) ([]string, int, error) {
+func getStarredReposForUserPage(client *github.Client, urlType GithubURLType, page int) ([]string, int, error) {
 	options := &github.ActivityListStarredOptions{
 		ListOptions: github.ListOptions{Page: page, PerPage: 50},
 	}
@@ -60,8 +60,8 @@ func GetStarredReposForUserPage(client *github.Client, urlType GithubURLType, pa
 	return repos, response.LastPage, nil
 }
 
-func GetStarredReposForUser(client *github.Client, urlType GithubURLType) ([]string, error) {
-	repos, lastPage, err := GetStarredReposForUserPage(client, HTTPS, 0)
+func getStarredReposForUser(client *github.Client, urlType GithubURLType) ([]string, error) {
+	repos, lastPage, err := getStarredReposForUserPage(client, https, 0)
 
 	if err != nil {
 		return nil, err
@@ -72,7 +72,7 @@ func GetStarredReposForUser(client *github.Client, urlType GithubURLType) ([]str
 	}
 
 	for i := 1; i <= lastPage; i++ {
-		reposPage, _, err := GetStarredReposForUserPage(client, HTTPS, i)
+		reposPage, _, err := getStarredReposForUserPage(client, https, i)
 
 		if err != nil {
 			return nil, err
