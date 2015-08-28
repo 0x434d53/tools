@@ -11,14 +11,14 @@ import (
 	"golang.org/x/crypto/sha3"
 )
 
-func EncryptFile(source, dst string, key []byte) error {
+func encryptFile(source, dst string, key []byte) error {
 	sourcebytes, err := ioutil.ReadFile(source)
 
 	if err != nil {
 		return err
 	}
 
-	sourceHash := CreateHash(sourcebytes)
+	sourceHash := createHash(sourcebytes)
 
 	sourcebytes = append(sourcebytes, sourceHash...)
 
@@ -57,13 +57,13 @@ func EncryptFile(source, dst string, key []byte) error {
 	return nil
 }
 
-func CreateHash(in []byte) []byte {
+func createHash(in []byte) []byte {
 	h := sha3.New256()
 	h.Write(in)
 	return h.Sum(nil)
 }
 
-func DecryptFile(source, dst string, key []byte) error {
+func decryptFile(source, dst string, key []byte) error {
 	sourcebytes, err := ioutil.ReadFile(source)
 	if err != nil {
 		return err
@@ -93,7 +93,7 @@ func DecryptFile(source, dst string, key []byte) error {
 	h := destbytes[len(destbytes)-32:]
 	destbytes = destbytes[:len(destbytes)-32]
 
-	if !AreEqual(h, CreateHash(destbytes)) {
+	if !areEqual(h, createHash(destbytes)) {
 		return fmt.Errorf("Wrong password")
 	}
 
@@ -103,7 +103,7 @@ func DecryptFile(source, dst string, key []byte) error {
 	return nil
 }
 
-func AreEqual(a, b []byte) bool {
+func areEqual(a, b []byte) bool {
 	if len(a) != len(b) {
 		return false
 	}
@@ -117,7 +117,7 @@ func AreEqual(a, b []byte) bool {
 	return true
 }
 
-func CreateKeyFromPassword(pwd string) ([]byte, error) {
+func createKeyFromPassword(pwd string) ([]byte, error) {
 	if len(pwd) < 8 {
 		return nil, fmt.Errorf("Password has to be at least 8 characters")
 	}
@@ -133,19 +133,19 @@ func main() {
 	encrypt := "test.txt.crypt"
 	decrypt := "test.txt.decrypt"
 	passwd := "TestPasswort"
-	key, err := CreateKeyFromPassword(passwd)
+	key, err := createKeyFromPassword(passwd)
 
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
-	err = EncryptFile(src, encrypt, key)
+	err = encryptFile(src, encrypt, key)
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	err = DecryptFile(encrypt, decrypt, key)
+	err = decryptFile(encrypt, decrypt, key)
 
 	if err != nil {
 		fmt.Println(err)
