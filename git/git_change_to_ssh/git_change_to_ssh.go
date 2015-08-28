@@ -47,7 +47,7 @@ func searchAndReplaceInFileWithBackup(p string, re string, newValue []byte) erro
 
 	r := bufio.NewReader(sourceFile)
 	buf := make([]byte, 2048)
-	result := make([][]byte, 0)
+	var result [][]byte
 
 	for {
 
