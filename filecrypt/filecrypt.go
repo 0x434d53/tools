@@ -1,13 +1,14 @@
 package filecrypt
 
 import (
-	"code.google.com/p/go.crypto/blowfish"
-	"code.google.com/p/go.crypto/sha3"
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
 	"fmt"
 	"io/ioutil"
+
+	"golang.org/x/crypto/blowfish"
+	"golang.org/x/crypto/sha3"
 )
 
 func EncryptFile(source, dst string, key []byte) error {
@@ -57,7 +58,7 @@ func EncryptFile(source, dst string, key []byte) error {
 }
 
 func CreateHash(in []byte) []byte {
-	h := sha3.NewKeccak256()
+	h := sha3.New256()
 	h.Write(in)
 	return h.Sum(nil)
 }
@@ -121,7 +122,7 @@ func CreateKeyFromPassword(pwd string) ([]byte, error) {
 		return nil, fmt.Errorf("Password has to be at least 8 characters")
 	}
 
-	h := sha3.NewKeccak256()
+	h := sha3.New256()
 	h.Write([]byte(pwd))
 
 	return h.Sum(nil), nil
