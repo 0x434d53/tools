@@ -36,7 +36,7 @@ func substituteFileAndBackup(oldPath, newPath string) error {
 }
 
 func searchAndReplaceInFileWithBackup(p string, re string, newValue []byte) error {
-	regex_compiled := regexp.MustCompile(re)
+	regexCompiled := regexp.MustCompile(re)
 
 	sourceFile, err := os.Open(p)
 	if err != nil {
@@ -56,7 +56,7 @@ func searchAndReplaceInFileWithBackup(p string, re string, newValue []byte) erro
 			break
 		}
 
-		resultLine := regex_compiled.ReplaceAll(buf, newValue)
+		resultLine := regexCompiled.ReplaceAll(buf, newValue)
 		resultLine = append(resultLine, '\n') //Append newlines!
 		result = append(result, resultLine)
 	}

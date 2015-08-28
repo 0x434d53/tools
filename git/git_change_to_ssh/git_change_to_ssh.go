@@ -10,7 +10,7 @@ import (
 	"regexp"
 )
 
-func SubstituteFileAndBackup(oldPath, newPath string) error {
+func substituteFileAndBackup(oldPath, newPath string) error {
 	bakDir := path.Dir(oldPath)
 	temp_number := fmt.Sprintf("%v", rand.Uint32())
 	bakFileName := path.Base(oldPath) + temp_number + ".bak"
@@ -35,8 +35,8 @@ func SubstituteFileAndBackup(oldPath, newPath string) error {
 	return nil
 }
 
-func SearchAndReplaceInFileWithBackup(p string, re string, newValue []byte) error {
-	regex_compiled := regexp.MustCompile(re)
+func searchAndReplaceInFileWithBackup(p string, re string, newValue []byte) error {
+	regexCompiled := regexp.MustCompile(re)
 
 	sourceFile, err := os.Open(p)
 	if err != nil {
@@ -56,13 +56,13 @@ func SearchAndReplaceInFileWithBackup(p string, re string, newValue []byte) erro
 			break
 		}
 
-		result_line := regex_compiled.ReplaceAll(buf, newValue)
-		result_line = append(result_line, '\n') //Append newlines!
-		result = append(result, result_line)
+		resultLine := regexCompiled.ReplaceAll(buf, newValue)
+		resultLine = append(resultLine, '\n') //Append newlines!
+		result = append(result, resultLine)
 	}
 
-	temp_number := fmt.Sprintf("%v", rand.Uint32())
-	tempFilePath := path.Join(path.Dir(p), "config"+temp_number+".temp")
+	tempNumber := fmt.Sprintf("%v", rand.Uint32())
+	tempFilePath := path.Join(path.Dir(p), "config"+tempNumber+".temp")
 	tempFile, err := os.Create(tempFilePath)
 
 	if err != nil {
@@ -89,10 +89,10 @@ func SearchAndReplaceInFileWithBackup(p string, re string, newValue []byte) erro
 
 	sourceFile.Close()
 
-	return SubstituteFileAndBackup(p, tempFilePath)
+	return substituteFileAndBackup(p, tempFilePath)
 }
 
-func IsGitDirectory(p string, info os.FileInfo) bool {
+func isGitDirectory(p string, info os.FileInfo) bool {
 	b, err := path.Match(".git", info.Name())
 
 	if err != nil {
@@ -111,13 +111,13 @@ func IsGitDirectory(p string, info os.FileInfo) bool {
 }
 
 func walker(p string, info os.FileInfo, err error) error {
-	if IsGitDirectory(p, info) {
+	if isGitDirectory(p, info) {
 		configFile := path.Join(p, "config")
 
 		newValue := []byte(`https://github.com/`)
 		re := `git@github.com:`
 
-		if err = SearchAndReplaceInFileWithBackup(configFile, re, newValue); err != nil {
+		if err = searchAndReplaceInFileWithBackup(configFile, re, newValue); err != nil {
 			return err
 		}
 	}
