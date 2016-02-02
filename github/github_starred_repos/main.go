@@ -36,11 +36,17 @@ func main() {
 	}
 
 	for _, r := range repos {
-		fmt.Printf("git clone %v\n", r)
+		fmt.Printf("git clone %s %s_%s\n", r.url, r.user, r.repo)
 	}
 }
 
-func getStarredReposForUserPage(client *github.Client, urlType GithubURLType, page int) ([]string, int, error) {
+type repo struct {
+	url  string
+	user string
+	repo string
+}
+
+func getStarredReposForUserPage(client *github.Client, urlType GithubURLType, page int) ([]repo, int, error) {
 	options := &github.ActivityListStarredOptions{
 		ListOptions: github.ListOptions{Page: page, PerPage: 50},
 	}
@@ -51,16 +57,18 @@ func getStarredReposForUserPage(client *github.Client, urlType GithubURLType, pa
 		return nil, 0, err
 	}
 
-	repos := make([]string, 0)
+	repos := make([]repo, 0)
 
 	for _, r := range starredRepos {
-		repos = append(repos, *r.Repository.SSHURL)
+		newr := repo{url: *r.Repository.SSHURL, user: *r.Repository.Owner.Login, repo: *r.Repository.Name}
+
+		repos = append(repos, newr)
 	}
 
 	return repos, response.LastPage, nil
 }
 
-func getStarredReposForUser(client *github.Client, urlType GithubURLType) ([]string, error) {
+func getStarredReposForUser(client *github.Client, urlType GithubURLType) ([]repo, error) {
 	repos, lastPage, err := getStarredReposForUserPage(client, https, 0)
 
 	if err != nil {
