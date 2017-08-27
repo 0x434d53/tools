@@ -42,7 +42,7 @@ func main() {
 
 	for _, r := range repos {
 		if *goget {
-			fmt.Printf("go get -u %s/...\n", r.geturl)
+			fmt.Printf("go get %s/...\n", r.geturl)
 		} else {
 			fmt.Printf("git clone %s %s_%s\n", r.sshurl, r.user, r.repo)
 		}
