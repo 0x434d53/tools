@@ -70,7 +70,7 @@ func getStarredReposForUserPage(client *github.Client, urlType GithubURLType, pa
 	repos := make([]repo, 0)
 
 	for _, r := range starredRepos {
-		newr := repo{sshurl: *r.Repository.SSHURL, geturl: fmt.Sprintf("github.com/%s", *r.Repository.URL), user: *r.Repository.Owner.Login, repo: *r.Repository.Name}
+		newr := repo{sshurl: *r.Repository.SSHURL, geturl: fmt.Sprintf("github.com/%s", *r.Repository.FullName), user: *r.Repository.Owner.Login, repo: *r.Repository.Name}
 
 		repos = append(repos, newr)
 	}
