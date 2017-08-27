@@ -6,7 +6,7 @@ import (
 	"path"
 	"strings"
 
-	"github.com/0x434D53/tools/git/lib"
+	"github.com/0x434d53/tools/git/lib"
 )
 
 func dirExists(dir string) bool {

@@ -2,8 +2,9 @@ package main
 
 import (
 	"fmt"
-	"github.com/0x434D53/tools/git/lib"
 	"os"
+
+	"github.com/0x434d53/tools/git/lib"
 )
 
 func main() {
