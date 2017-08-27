@@ -1,6 +1,8 @@
 package main
 
 import (
+	"context"
+	"flag"
 	"fmt"
 	"log"
 	"os"
@@ -24,6 +26,9 @@ func main() {
 		log.Fatal("Not an Access Token found as GithubAccessToken in Environment")
 	}
 
+	goget := flag.Bool("goget", false, "should generate a git clone or go get -u for the reps")
+	flag.Parse()
+
 	ts := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: accessToken})
 	tc := oauth2.NewClient(oauth2.NoContext, ts)
 
@@ -36,14 +41,19 @@ func main() {
 	}
 
 	for _, r := range repos {
-		fmt.Printf("git clone %s %s_%s\n", r.url, r.user, r.repo)
+		if *goget {
+			fmt.Printf("go get -u %s/...\n", r.geturl)
+		} else {
+			fmt.Printf("git clone %s %s_%s\n", r.sshurl, r.user, r.repo)
+		}
 	}
 }
 
 type repo struct {
-	url  string
-	user string
-	repo string
+	sshurl string
+	geturl string
+	user   string
+	repo   string
 }
 
 func getStarredReposForUserPage(client *github.Client, urlType GithubURLType, page int) ([]repo, int, error) {
@@ -51,7 +61,7 @@ func getStarredReposForUserPage(client *github.Client, urlType GithubURLType, pa
 		ListOptions: github.ListOptions{Page: page, PerPage: 50},
 	}
 
-	starredRepos, response, err := client.Activity.ListStarred("", options)
+	starredRepos, response, err := client.Activity.ListStarred(context.Background(), "", options)
 
 	if err != nil {
 		return nil, 0, err
@@ -60,7 +70,7 @@ func getStarredReposForUserPage(client *github.Client, urlType GithubURLType, pa
 	repos := make([]repo, 0)
 
 	for _, r := range starredRepos {
-		newr := repo{url: *r.Repository.SSHURL, user: *r.Repository.Owner.Login, repo: *r.Repository.Name}
+		newr := repo{sshurl: *r.Repository.SSHURL, geturl: fmt.Sprintf("github.com/%s", *r.Repository.URL), user: *r.Repository.Owner.Login, repo: *r.Repository.Name}
 
 		repos = append(repos, newr)
 	}
