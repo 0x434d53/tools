@@ -7,7 +7,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/google/go-github/github"
+	"github.com/google/go-github/v57/github"
 	"golang.org/x/oauth2"
 )
 
@@ -20,19 +20,20 @@ const (
 )
 
 func main() {
-	accessToken := os.Getenv("GithubAccessToken")
+	ctx := context.Background()
 
+	accessToken := os.Getenv("GITHUB_ACCESS_TOKEN")
 	if accessToken == "" {
-		log.Fatal("Not an Access Token found as GithubAccessToken in Environment")
+		log.Fatal("Access token not found in environment")
 	}
 
+	ts := oauth2.StaticTokenSource(
+		&oauth2.Token{AccessToken: string(accessToken)})
+
+	tc := oauth2.NewClient(ctx, ts)
+	client := github.NewClient(tc)
 	goget := flag.Bool("goget", false, "should generate a git clone or go get -u for the reps")
 	flag.Parse()
-
-	ts := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: accessToken})
-	tc := oauth2.NewClient(oauth2.NoContext, ts)
-
-	client := github.NewClient(tc)
 
 	repos, err := getStarredReposForUser(client, https)
 

@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"regexp"
@@ -22,7 +22,7 @@ func main() {
 
 	defer resp.Body.Close()
 
-	c, err := ioutil.ReadAll(resp.Body)
+	c, err := io.ReadAll(io.Reader(resp.Body))
 
 	if err != nil {
 		log.Printf("Error reading response body: %v", err)
